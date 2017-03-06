@@ -45,6 +45,29 @@ Velocity = 1  # m/s
 Num = []
 WidthDoor = 0.5
 CPeople = 1.33  # m/s
+def delPoint(px,py,arr_len,count):
+    xi = np.random.randint(0, count)
+    px[xi] = None
+    py[xi] = None
+    x,y=fiterPoint(px, py)
+    if len(x) > arr_len:
+        return delPoint(x,y,arr_len,len(x)-1)
+    else:
+        return x,y
+
+
+def fiterPoint(px,py):
+    p_x,p_y =[],[]
+    for i in px:
+        if i != None:
+            # print(i)
+            p_x.append(i)
+    for i in py:
+        if i != None:
+            p_y.append(i)
+    return p_x,p_y
+
+
 
 def calDoorDistance(x1, y1, x2, y2):
     return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
@@ -169,7 +192,7 @@ def iteration():
 
         if people_to_left_time < people_to_right_time:
             if people_select[key] == 1:
-                print('右到左')
+                # print('右到左')
                 people_select[key] = 0
                 dict_select_door_left[key] = dict_dis[key]
                 array_select_door_left_time[key] = people_to_left_time
@@ -178,7 +201,7 @@ def iteration():
 
         else:
             if people_select[key] == 0:
-                print('左到右')
+                # print('左到右')
                 people_select[key] = 1
                 dict_select_door_right[key] = dict_dis[key]
                 array_select_door_right_time[key] = people_to_right_time
@@ -229,26 +252,75 @@ if __name__ == '__main__':
     # d = {1:[1,2],3:[3,4]}
     # # c= a+b
     # print(d.keys())
-    left_num_x = np.random.random(size=samply_left)
-    left_num_y = np.random.random(size=samply_left)
-    right_num_x = np.random.random(size=samply_right)
-    right_num_y = np.random.random(size=samply_right)
-    # print(left_num)
-    x_l = pre_room_width * left_num_x + 0
-    y_l = pre_room_len * left_num_y + 0
+    point_left_x = []
+    point_left_y = []
+    point_right_x = []
+    point_right_y = []
 
-    x_r = pre_room_width * right_num_x + 10
-    y_r = pre_room_len * right_num_y + 0
+    for xi in range(20):
+        px = xi * 0.5 + 0.25
 
-    # print(len(x_l))
-    # print(len(x_r))
+        for yi in range(40):
+            py = yi * 0.5 + 0.25
+            point_left_x.append(px)
+            point_left_y.append(py)
 
-    x = np.append(x_l, x_r)
+    for xi in range(20):
+        px = xi * 0.5 + 10.25
+        for yi in range(40):
+            py = yi * 0.5 + 0.25
+            point_right_x.append(px)
+            point_right_y.append(py)
 
-    y = np.append(y_l, y_r)  # y_l+y_r[0:300]
+
+
+    print(len(point_left_x))
+    print(len(point_left_y))
+    print(len(point_right_x))
+    print(len(point_right_y))
+
+    # for d in range(500):
+    #     # print(d)
+    #     # num = 799 - d
+    #     xi = np.random.randint(0, 799)
+    #     point_left_x[xi] = None
+    #     point_left_y[xi] = None
+    #
+    # for d in range(200):
+    #     # num = 799 - d
+    #     xi = np.random.randint(0, 799)
+    #     point_right_x[xi] = None
+    #     point_right_y[xi] = None
+    point_left_x, point_left_y = delPoint(point_left_x, point_left_y, 300, 800)
+    point_right_x, point_right_y = delPoint(point_right_x, point_right_y,600,800)
+
+
+
+    # print('point_right_x:',len(point_right_x))
+
+    # left_num_x = np.random.random(size=samply_left)
+    # left_num_y = np.random.random(size=samply_left)
+    # right_num_x = np.random.random(size=samply_right)
+    # right_num_y = np.random.random(size=samply_right)
+    # # print(left_num)
+    # x_l = pre_room_width * left_num_x + 0
+    # y_l = pre_room_len * left_num_y + 0
+    #
+    # x_r = pre_room_width * right_num_x + 10
+    # y_r = pre_room_len * right_num_y + 0
+    #
+    # # print(len(x_l))
+    # # print(len(x_r))
+    #
+    x = np.append(point_left_x, point_right_x)
+    #
+    y = np.append(point_left_y, point_right_y)  # y_l+y_r[0:300]
+
+    x,y = fiterPoint(x,y)
 
     print('x:', len(x))
     print('y:', len(y))
+
     left_door_distance_set = distance(x, y, 5, 0)
     right_door_distance_set = distance(x, y, 15, 0)
 
@@ -268,6 +340,8 @@ if __name__ == '__main__':
 
     print('迭代', step)
     #
+
+
     # for i in range(200):
     #     res,_ = satar_iteration(left_door_distance_set,right_door_distance_set)
     #     if res == 0:
@@ -284,7 +358,7 @@ if __name__ == '__main__':
     plt.scatter(select_left_x, select_left_y, s=20, c='blue')
     plt.scatter(select_right_x, select_right_y, s=20, c='red')
     # print(len(select_right_x),len(select_right_y))
-    # plt.plot(x_r, y_r, 'ro')
+    # plt.plot(x, y, 'ro')
     plt.xlim(0, 20)
     plt.ylim(0, 20)
     plt.xlabel('x 20m')
