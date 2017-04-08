@@ -6,9 +6,11 @@ import os
 #读取csv文件
 import csv
 
+from seat_a_star import getAllSeatDis
+
 
 count = 0
-max_count = 10
+max_count = 100
 
 # EXIT_X = [16420,34720,6565,43875]
 # EXIT_Y = [30852,6587,18720,18720]
@@ -66,6 +68,9 @@ array_select_door_top_time = {}
 array_select_door_bottom_time = {}
 array_select_door_left_time = {}
 array_select_door_right_time = {}
+
+
+finished_time = []
 
 #用于标记左右两门完全疏散时间
 # exit_left_time = 0
@@ -201,6 +206,7 @@ def init_time():
 
 
 def iteration():
+    global finished_time
     global count
     global dict_dis
     global dict_select_door_top
@@ -212,6 +218,7 @@ def iteration():
     global array_select_door_bottom_time
     global array_select_door_left_time
     global array_select_door_right_time
+
 
     for key in dict_dis:
     	item = dict_dis[key]
@@ -298,8 +305,10 @@ def iteration():
     d = array_select_door_right_time.values()
 
     print('iteration',count+1,'after',len(array_select_door_top_time),len(array_select_door_bottom_time),len(array_select_door_left_time), len(array_select_door_right_time))
+    finished_time = [max(a),max(b),max(c),max(d)]
+    print('======================time max===============',finished_time)
     
-    print('======================time max===============',max(a),max(b),max(c),max(d))
+   
     count += 1
     if count > max_count:
         return max_count
@@ -388,67 +397,166 @@ def seatPoint():
                 label.append(row[0])
     return x,y
 
+def otherPoint():
+    ##读取通道
+    x_td = []
+    y_td = []
+    label_td = []
+    with open('point_td.csv', 'rb') as f:        # 采用b的方式处理可以省去很多问题
+        reader = csv.reader(f)
+        # print(type(reader))
+        for row in reader:
+            # do something with row, such as row[0],row[1]
+            if row[1] != 'x':
+                float_x = float(row[1])
+                float_y = float(row[2])
+                x_m = float_x/1000
+                y_m = float_y/1000
+                # print(x_m,y_m)
+                x_td.append(x_m)
+                y_td.append(y_m)
 
+                label_td.append(row[0])
+                # plt.text(row[1],row[2],str(row[0]), family='serif', style='italic', ha='right', wrap=True)
+                # print(row[1],row[2])
+    ##读取楼梯
+    x_lt = []
+    y_lt = []
+    label_lt = []
+    with open('point_lt.csv', 'rb') as f:        # 采用b的方式处理可以省去很多问题
+        reader = csv.reader(f)
+        # print(type(reader))
+        for row in reader:
+            # do something with row, such as row[0],row[1]
+            if row[1] != 'x':
+                float_x = float(row[1])
+                float_y = float(row[2])
+                x_m = float_x/1000
+                y_m = float_y/1000
+                # print(x_m,y_m)
+                x_lt.append(x_m)
+                y_lt.append(y_m)
+
+                label_lt.append(row[0])
+                # plt.text(row[1],row[2],str(row[0]), family='serif', style='italic', ha='right', wrap=True)
+                # print(row[1],row[2])
+    ##读取辅助点
+    x_fz = []
+    y_fz = []
+    label_fz = []
+    with open('point_node.csv', 'rb') as f:        # 采用b的方式处理可以省去很多问题
+        reader = csv.reader(f)
+        # print(type(reader))
+        for row in reader:
+            # do something with row, such as row[0],row[1]
+            if row[1] != 'x':
+
+                float_x = float(row[1])
+                float_y = float(row[2])
+                x_m = float_x/1000
+                y_m = float_y/1000
+                # print(x_m,y_m)
+                x_fz.append(x_m)
+                y_fz.append(y_m)
+                label_fz.append(row[0])
+
+    return x_td,y_td,label_td,x_lt,y_lt,label_lt,x_fz,y_fz,label_fz
 
 if __name__ == '__main__':
 
+    # test  = True
+    test  = False
+    if test :
+        print('==========================================test==========================================')
+        dict_seat,arr_seat = getAllSeatDis()
 
-    
-    x,y = seatPoint()
-    #清洗数据
-    x,y = fiterPoint(x,y)
+        a = np.array(arr_seat)
+        top_door_distance_set = a[:,0]
+        bottom_door_distance_set = a[:,1]
+        left_door_distance_set = a[:,2]
+        right_door_distance_set = a[:,3]
 
-    print('x:', len(x))
-    print('y:', len(y))
-
-    #获取每个点到四个门的距离
-    #TODO 这里后面需要用最短距离
-    top_door_distance_set = distance(x, y, TOP_EXIT)
-    bottom_door_distance_set = distance(x, y, BOTTOM_EXIT)
-    left_door_distance_set = distance(x, y, LEFT_EXIT)
-    right_door_distance_set = distance(x, y, RIGHT_EXIT)
-    
-
-    #把坐标和距离都转化成字典
-    #{i:[上、下、左、右]}
-    for i in range(len(x)):
-
-        dict_dis[i] = [top_door_distance_set[i],bottom_door_distance_set[i],left_door_distance_set[i], right_door_distance_set[i]]
-        dict_point[i] = [x[i], y[i]]
-
-    print('distance to all door',len(top_door_distance_set),len(bottom_door_distance_set),len(left_door_distance_set), len(right_door_distance_set))
-
-    #按照距离选择门口
-    init_iteration(dict_dis)
-    
-
-    #根据距离选择门需要的时间
-    init_time()
-    print('---------------开始迭代-----------')
-    step = iteration()
-    classification()
-
-    print('iteration', step)
-    
-    
-    fig = plt.figure(figsize=(80, 56), dpi=50)
-    # # print(len(select_right_x),len(select_right_y))
+        print(top_door_distance_set[0:20])
+        print(bottom_door_distance_set[0:20])
+        print(left_door_distance_set[0:20])
+        print(right_door_distance_set[0:20])
 
 
-    plt.plot(select_top_x,select_top_y,'ro',color='blue',label='xujing')
-    plt.plot(select_bottom_x,select_bottom_y,'ro',color='green',label='xujing')
-    plt.plot(select_left_x,select_left_y,'ro',color='red',label='xujing')
-    plt.plot(select_right_x,select_right_y,'ro',color='yellow',label='xujing')
+
+    else:
+        x,y = seatPoint()
+        #清洗数据
+        x,y = fiterPoint(x,y)
+
+        print('x:', len(x))
+        print('y:', len(y))
+
+        #获取每个点到四个门的距离
+        #TODO 这里后面需要用最短距离
+        dict_seat,arr_seat = getAllSeatDis()
+
+        a = np.array(arr_seat)
+        top_door_distance_set = a[:,3]
+        bottom_door_distance_set = a[:,1]
+        left_door_distance_set = a[:,0]
+        right_door_distance_set = a[:,2]
+        # print('distance to all door',len(top_door_distance_set),len(bottom_door_distance_set),len(left_door_distance_set), len(right_door_distance_set))
+        # 
+        # top_door_distance_set = distance(x, y, TOP_EXIT)
+        # bottom_door_distance_set = distance(x, y, BOTTOM_EXIT)
+        # left_door_distance_set = distance(x, y, LEFT_EXIT)
+        # right_door_distance_set = distance(x, y, RIGHT_EXIT)
+        
+
+        #把坐标和距离都转化成字典
+        #{i:[上、下、左、右]}
+        for i in range(len(x)):
+
+            dict_dis[i] = [top_door_distance_set[i],bottom_door_distance_set[i],left_door_distance_set[i], right_door_distance_set[i]]
+            dict_point[i] = [x[i], y[i]]
+
+        print('distance to all door',len(top_door_distance_set),len(bottom_door_distance_set),len(left_door_distance_set), len(right_door_distance_set))
+
+        #按照距离选择门口
+        init_iteration(dict_dis)
+        
+
+        #根据距离选择门需要的时间
+        init_time()
+        print('---------------开始迭代-----------')
+        step = iteration()
+        classification()
+
+        print('iteration', step)
+        
+
+        #获取通道节点 楼梯 通道 辅助节点
+        x_td,y_td,label_td,x_lt,y_lt,label_lt,x_fz,y_fz,label_fz = otherPoint()
+        
 
 
-    plt.xlim(0, 50)
-    plt.ylim(0, 40)
-    plt.xlabel('x 49')
-    plt.ylabel('y 35')
-    plt.title('evacuation')
-    plt.grid(True)
-    plt.savefig('image.png')
-    plt.show()
+        fig = plt.figure(figsize=(80, 56), dpi=50)
+        # # print(len(select_right_x),len(select_right_y))
+        plt.plot(x_td,y_td,'ro',color='magenta',label='Exit')
+        plt.plot(x_lt,y_lt,'ro',color='black',label='stair')
+        # plt.plot(x_lt,y_lt,'ro',color='black',label='stair')
+
+      
+        plt.plot(select_top_x,select_top_y,'ro',color='blue',label=str('exit_top'+'time:'+finished_time[0]+'s'))
+        plt.plot(select_bottom_x,select_bottom_y,'ro',color='green',label=str('exit_bottom'+'time:'+finished_time[1]+'s'))
+        plt.plot(select_left_x,select_left_y,'ro',color='red',label=str('exit_left'+'time:'+finished_time[2]+'s'))
+        plt.plot(select_right_x,select_right_y,'ro',color='yellow',label=str('exit_right'+'time:'+finished_time[3]+'s'))
+
+
+        plt.xlim(0, 60)
+        plt.ylim(0, 40)
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('evacuation')
+        plt.legend()
+        plt.grid(True)
+        plt.savefig('image.png')
+        plt.show()
 
 
 

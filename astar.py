@@ -298,11 +298,16 @@ def getAllNodeDis():
 
 		AllNodeDis[lable] = dis
 		AllNodeDisArr.append(dis)
-	print('AllNodeDis',AllNodeDis)
+	# print('AllNodeDis',AllNodeDis)
+
 	print('AllNodeDis',len(AllNodeDis),np.shape(AllNodeDisArr))
+
+	return AllNodeDis
 
 #得到所有节点到四个出口的最短路径
 getAllNodeDis()
+
+
 
 
 
