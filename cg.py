@@ -10,6 +10,10 @@ import os
 import csv
 import matplotlib.pyplot as plt
 
+#出口
+EXIT_X = [16420,34720,6565,43875]
+EXIT_Y = [30852,6587,18720,18720]
+
 #读取座位
 x_zw = []
 y_zw = []
@@ -77,21 +81,21 @@ fig = plt.figure(figsize=(80, 56), dpi=50)
 
 
 plt.plot(x_zw,y_zw,'ro',color='blue',label='xujing')
-plt.plot(x_td,y_td,'ro',color='green',label='xujing')
+plt.plot(EXIT_X,EXIT_Y,'ro',color='green',label='xujing')
 
 plt.plot(x_lt,y_lt,'ro',color='red',label='xujing')
 plt.plot(x_fz,y_fz,'ro',color='red',label='xujing')
 
 for i in range(len(x_zw)):
-	plt.text(x_zw[i],y_zw[i],str(label_zw[i]))
+	plt.text(x_zw[i],y_zw[i],str((x_zw[i],y_zw[i])))
 for i in range(len(x_td)):
-	plt.text(x_td[i],y_td[i],str(label_td[i]))
+	plt.text(x_td[i],y_td[i],str((x_td[i],y_td[i])))
 for i in range(len(x_lt)):
-	plt.text(x_lt[i],y_lt[i],str(label_lt[i]))
+	plt.text(x_lt[i],y_lt[i],str((x_lt[i],y_lt[i])))
 for i in range(len(x_fz)):
-	plt.text(x_fz[i],y_fz[i],str(label_fz[i]))
-	
-window = fig.add_subplot(111)
+	plt.text(x_fz[i],y_fz[i],str((x_fz[i],y_fz[i])))
+
+# window = fig.add_subplot(111)
 
 # plt.scatter(x_zw, y_zw, s=200, c='blue')
 # plt.scatter(x_lt, y_lt, s=200, c='red')
@@ -99,13 +103,13 @@ window = fig.add_subplot(111)
 # plt.scatter(select_right_x, select_right_y, s=20, c='red')
 # print(len(select_right_x),len(select_right_y))
 # plt.plot(x, y, 'ro')
-plt.xlim(50000, 0)
-plt.ylim(40000, 0)
+plt.xlim(0, 50000)
+plt.ylim(0, 40000)
 plt.xlabel('x 49000')
 plt.ylabel('y 35000')
 plt.title('evacuation')
 plt.grid(True)
-plt.savefig('image.png')
+plt.savefig('image_init.png')
 plt.show()
 
 

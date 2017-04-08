@@ -158,7 +158,7 @@ def init_time():
     for key in dict_select_door_left:
         # print(key)
         item = dict_select_door_left[key]
-        num_left = compareRightDis(item[0])
+        num_left = compareLeftDis(item[0])
 
         array_select_door_left_time[key] = exitTime(item[0],num_left)
         # print(item)
@@ -365,7 +365,7 @@ if __name__ == '__main__':
     plt.ylabel('y 20m')
     plt.title('evacuation')
     plt.grid(True)
-    plt.savefig('imag.png')
+    plt.savefig('image_paper.png')
     plt.show()
 
 
